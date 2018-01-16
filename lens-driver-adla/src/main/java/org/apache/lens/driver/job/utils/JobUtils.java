@@ -26,12 +26,18 @@ import javax.ws.rs.core.Response;
 
 import org.apache.lens.driver.job.states.JobState;
 import org.apache.lens.server.api.error.LensException;
-
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.filter.LoggingFilter;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public class JobUtils {
@@ -87,22 +93,55 @@ public class JobUtils {
       throw new LensException();
     }
     String output = response.readEntity(String.class);
+    JobState jobState;
     try {
       JSONObject jsonObject = new JSONObject(output);
       if (jsonObject.get("result") == null) {
-        return JobState.DOES_NOT_EXIST;
+        jobState = JobState.DOES_NOT_EXIST;
       }
-      if (jsonObject.get("result").toString().trim().equals("Succeeded")) {
-        return JobState.COMPLETED;
+      else if (jsonObject.get("result").toString().trim().equals("Succeeded")) {
+        jobState = JobState.COMPLETED;
       }
-      if (jsonObject.get("result").toString().trim().equals("Failed")) {
-        return JobState.FAILED;
+      else if (jsonObject.get("result").toString().trim().equals("Failed")) {
+        jobState = JobState.FAILED;
       }
-      return JobState.RUNNING;
+      else {
+        jobState = JobState.RUNNING;
+      }
+      setMessage(jobState,jsonObject);
+      return jobState;
     } catch (Exception e) {
       throw new LensException("Unknown error, unable to parse the result");
     }
   }
+
+  private static void setMessage(JobState jobState, JSONObject jsonObject) {
+    try  {
+      jsonObject.get("properties");
+      JSONObject jsonObject1 = jsonObject.getJSONObject("properties");
+      Iterator keys = jsonObject1.keys();
+      StringBuilder message = new StringBuilder();
+      while (keys.hasNext()) {
+        Object key = keys.next();
+        if ("totalCompilationTime".equals(key)) {
+          message.append("Total Compilation Time = ").append(jsonObject1.get(key.toString())).append("\t");
+        }
+        else if ("totalPausedTime".equals(key)) {
+          message.append("Total Pause Time = ").append(jsonObject1.get(key.toString())).append("\t");
+        }
+        else if ("totalQueuedTime".equals(key)) {
+          message.append("Total Queued Time = ").append(jsonObject1.get(key.toString())).append("\t");
+        }
+        else if ("totalRunningTime".equals(key)) {
+          message.append("Total Running Time = ").append(jsonObject1.get(key.toString())).append("\t");
+        }
+      }
+      jobState.setMessage(message.toString());
+    } catch (JSONException e) {
+      return;
+    }
+  }
+
 
   public static InputStream getResult(String jobId, String bearerToken) {
     String requestUrl = fetchUrl + jobId + ".csv" + "?op=open";
