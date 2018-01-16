@@ -19,8 +19,22 @@
 package org.apache.lens.driver.job.states;
 
 public enum JobState {
-  DOES_NOT_EXIST,
-  RUNNING,
-  COMPLETED,
-  FAILED
+  DOES_NOT_EXIST(""),
+  RUNNING(""),
+  COMPLETED(""),
+  FAILED("");
+
+  private String message;
+
+  JobState(String message) {
+    this.message = message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public String getMessage() {
+    return message;
+  }
 }
