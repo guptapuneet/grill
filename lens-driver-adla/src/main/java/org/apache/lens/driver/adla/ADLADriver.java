@@ -92,7 +92,13 @@ public class ADLADriver extends AbstractLensDriver {
     log.info("Submitting query {} ", context.getQueryHandleString());
     try {
       String usqlQuery = queryRewriter.rewrite(context, this);
-      JobUtils.submitJob(context.getQueryHandleString(), usqlQuery, getBearerToken(context));
+      int aus = getAUs(context);
+      if (aus == -1) {
+        JobUtils.submitJob(context.getQueryHandleString(), usqlQuery, getBearerToken(context));
+      } else {
+        JobUtils.submitJob(context.getQueryHandleString(), usqlQuery, getBearerToken(context));
+      }
+
       log.info("Submitted query {} successfully", context.getQueryHandleString());
     } catch (Exception e) {
       log.error("Filed to submit query {}", context.getQueryHandleString(), e);
@@ -103,6 +109,22 @@ public class ADLADriver extends AbstractLensDriver {
   private String getBearerToken(QueryContext context) {
     log.info("bearer token {} ", context.getConf().get("lens.query.bearertoken"));
     return context.getConf().get("lens.query.bearertoken");
+  }
+
+
+  private int getAUs(QueryContext context) {
+
+    if(context.getConf().get("lens.query.AU") == null) {
+      return -1;
+    }
+
+    log.info("bearer token {} ", context.getConf().get("lens.query.AU"));
+    try {
+      return Integer.parseInt(context.getConf().get("lens.query.AU"));
+    } catch (NumberFormatException e) {
+      log.error("Invalid AUs {}", context.getConf().get("lens.query.AU"), e);
+      return -1;
+    }
   }
 
 /*  private String getUsql(QueryContext context) {
@@ -120,7 +142,7 @@ public class ADLADriver extends AbstractLensDriver {
     //Update status of ADLA JOB
     log.info("Updating status for query {} ", context.getQueryHandleString());
     try {
-      Thread.sleep(2000);
+      Thread.sleep(100);
     } catch (InterruptedException e) {
       log.error("Error {} stacktrace {}", e.getMessage(),  e.getStackTrace());
     }
@@ -147,6 +169,8 @@ public class ADLADriver extends AbstractLensDriver {
       log.error("Could not find state for job {}", context.getQueryHandleString());
       context.getDriverStatus().setState(DriverQueryStatus.DriverQueryState.FAILED);
     }
+
+    context.getDriverStatus().setProgressMessage(state.getMessage());
   }
 
   @Override
