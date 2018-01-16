@@ -29,6 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.lens.cube.parse.CubeSemanticAnalyzer;
 import org.apache.lens.cube.parse.HQLParser;
@@ -61,11 +63,11 @@ public class SummaryAzureQueryRewriter extends ColumnarSQLRewriter {
       + " billed_cpc_clicks double, billed_installs double, billed_spend double, campaign_inc_id"
       + " long, completed_views double, cpc_impressions double, cpm_clicks double, "
       + "cpm_impressions double, creative_charges double, data_enrichment_cost double, "
-      + "event_time string, first_quartiles double, fraud_clicks double, fund_source_id long,"
+      + "event_time DateTime, first_quartiles double, fraud_clicks double, fund_source_id long,"
       + " inmobi_investment double, io_discount double, is_vta_enabled string, matched_conversions"
       + " double, media_plays double, nofund_revenue double, non_billable_cpc_clicks double,"
       + " non_billable_impressions double, other_valid_clicks double, pricing_model_id long,"
-      + " process_time string, pub_pay_event_type string, request_time string, resolved_slot_size"
+      + " process_time DateTime, pub_pay_event_type string, request_time DateTime, resolved_slot_size"
       + " string, second_quartiles double, served_impressions double, terminated_clicks double,"
       + " third_quartiles double, total_burn double, total_clicks double, total_installs double,"
       + " unbilled_installs double, volume_discount double, vqs_count double, vqs_sum double,"
@@ -150,6 +152,16 @@ public class SummaryAzureQueryRewriter extends ColumnarSQLRewriter {
 
   }
 
+  String replaceUSQLDate(String filterQuery) {
+    String regex = "\"(\\d{4}-\\d{2}-\\d{2} \\d{2}:00:00)\"";
+    Matcher m = Pattern.compile(regex).matcher(filterQuery);
+    while (m.find()) {
+      String matchedStr = m.group();
+      filterQuery = filterQuery.replaceAll(matchedStr, "DateTime.Parse("+matchedStr+")");
+    }
+    return filterQuery;
+  }
+
   String getOrderByExpr(final ASTNode orderByAST, Map<String, String> aliasMap, String cubeName) {
     return getReplacedExpr(orderByAST, aliasMap, cubeName).replaceAll(" asc", " ASC")
       .replaceAll(" desc", " DESC");
@@ -160,38 +172,50 @@ public class SummaryAzureQueryRewriter extends ColumnarSQLRewriter {
   }
 
   String getReplacedExpr(final ASTNode ast, Map<String, String> aliasMap, String cubeName) {
+    if (ast == null) {
+      return "";
+    }
     String str = HQLParser.getString(ast, HQLParser.AppendMode.DEFAULT).replaceAll("`", "")
       .replaceAll("sum", "SUM").replaceAll(" and ", " AND ")
       .replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ")
-      .replaceAll(" in ", " IN ").replaceAll("'", "\"");
+      .replaceAll(" in ", " IN ").replaceAll(" between ", " BETWEEN ")
+      .replaceAll(" = ", " == ")
+      .replaceAll("'", "\"");
     for (String k : aliasMap.keySet()) {
       str = str.replaceAll(cubeName + "." + k, aliasMap.get(k));
     }
-    return str.replaceAll(cubeName + ".", "");
+    return replaceUSQLDate(str.replaceAll(cubeName + ".", ""));
   }
 
 
   List<String> getGroupByFields(final ASTNode groupAST, Map<String, String> aliasMap) {
     List<String> fieldList = newArrayList();
-    for (Node node : groupAST.getChildren()) {
-      fieldList.add(aliasMap.get(node.getChildren().get(1).toString()));
+    if (groupAST != null) {
+      for (Node node : groupAST.getChildren()) {
+        fieldList.add(aliasMap.get(node.getChildren().get(1).toString()));
+      }
     }
     return fieldList;
   }
 
   Map<String, String> getAliasMap(ASTNode selectAST) {
     Map<String, String> map = new LinkedHashMap<>();
-    for (Node node : selectAST.getChildren()) {
-      List<Node> childList = (List<Node>) node.getChildren();
-      if (childList == null || childList.size() != 2) {
-        map.put(childList.get(0).getChildren().get(1).toString(),
-          "[" + childList.get(0).getChildren().get(1).toString() + "]");
-      } else if (childList.get(0).toString().startsWith("TOK_")) {
-        map.put(childList.get(0).getChildren().get(1).getChildren().get(1).toString(),
-          "[" + childList.get(1).toString() + "]");
-      } else if (childList.get(0).toString().startsWith(".")) {
-        map.put(childList.get(0).getChildren().get(1).toString(),
-          "[" + childList.get(0).getChildren().get(1).toString() + "]");
+    if (selectAST != null) {
+      for (Node node : selectAST.getChildren()) {
+        List<Node> childList = (List<Node>) node.getChildren();
+        if (childList == null) {
+          continue;
+        }
+        if (childList.size() != 2) {
+          map.put(childList.get(0).getChildren().get(0).toString(),
+            "[" + childList.get(0).getChildren().get(0).toString() + "]");
+        } else if (childList.get(0).toString().startsWith("TOK_")) {
+          map.put(childList.get(0).getChildren().get(1).getChildren().get(1).toString(),
+            "[" + childList.get(1).toString() + "]");
+        } else if (childList.get(0).toString().startsWith(".")) {
+          map.put(childList.get(0).getChildren().get(1).toString(),
+            "[" + childList.get(0).getChildren().get(1).toString() + "]");
+        }
       }
     }
     return map;

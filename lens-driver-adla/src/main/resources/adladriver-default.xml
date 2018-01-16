@@ -23,73 +23,73 @@
 
 <configuration>
   <property>
-    <name>lens.driver.adla.connection.provider</name>
+    <name>lens.driver.jdbc.connection.provider</name>
     <value></value>
     <description>A contract for obtaining JDBC connections</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.connection.properties</name>
+    <name>lens.driver.jdbc.connection.properties</name>
     <value></value>
     <description>Connection properties for jdbc connection.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.query.rewriter</name>
-    <value>org.apache.lens.driver.adla.ColumnarSQLRewriter</value>
+    <name>lens.driver.jdbc.query.rewriter</name>
+    <value>org.apache.lens.driver.jdbc.ColumnarSQLRewriter</value>
     <description>Rewriting the HQL to optimized sql queries</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.regex.replacement.values</name>
+    <name>lens.driver.jdbc.regex.replacement.values</name>
     <value>to_date=date, format_number=format, date_sub\((.*?)\,\s*([0-9]+\s*)\)=date_sub($1\, interval $2 day), date_add\((.*?)\,\s*([0-9]+\s*)\)=date_add($1\, interval $2 day)</value>
     <description>Rewriting the HQL to optimized sql queries</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.driver.class</name>
+    <name>lens.driver.jdbc.driver.class</name>
     <value>com.mysql.jdbc.Driver</value>
     <description>Type of JDBC driver used to connect backend database</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.db.uri</name>
+    <name>lens.driver.jdbc.db.uri</name>
     <value></value>
     <description>JDBC connection URL in the format jdbc:dbms://host:port/dbname</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.db.user</name>
+    <name>lens.driver.jdbc.db.user</name>
     <value></value>
     <description>The database user on whose behalf the connection is being made</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.db.password</name>
+    <name>lens.driver.jdbc.db.password</name>
     <value></value>
     <description>The database user's password</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.pool.max.size</name>
+    <name>lens.driver.jdbc.pool.max.size</name>
     <value>15</value>
     <description>Maximum number of concurrent connections allowed in pool</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.pool.idle.time</name>
+    <name>lens.driver.jdbc.pool.idle.time</name>
     <value>600</value>
     <description>Maximum idle time in sec before a connection is closed</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.pool.max.statements</name>
+    <name>lens.driver.jdbc.pool.max.statements</name>
     <value>20</value>
     <description>Maximum number of prepared statements to cache per connection</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.get.connection.timeout</name>
+    <name>lens.driver.jdbc.get.connection.timeout</name>
     <value>10000</value>
     <description>The number of milliseconds a client calling getConnection() will wait for a Connection to be
       checked-in or acquired when the pool is exhausted. Zero means wait indefinitely. Setting any positive value
@@ -100,75 +100,75 @@
   <!-- Estimate query connection pool settings -->
 
   <property>
-    <name>lens.driver.adla.estimate.connection.properties</name>
+    <name>lens.driver.jdbc.estimate.connection.properties</name>
     <value></value>
     <description>Connection properties for jdbc estimate connection.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.driver.class</name>
+    <name>lens.driver.jdbc.estimate.driver.class</name>
     <value></value>
     <description>Type of JDBC driver used to connect backend database for estimate queries. If
-    This property is not specified, value for lens.driver.adla.driver.class will be used.
+    This property is not specified, value for lens.driver.jdbc.driver.class will be used.
       Override this property to tune estimate connection pool</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.db.uri</name>
+    <name>lens.driver.jdbc.estimate.db.uri</name>
     <value></value>
     <description>JDBC connection URL in the format jdbc:dbms://host:port/dbname for estimate queries.
-    If this property is unspecified, value for lens.driver.adla.db.uri will be used.</description>
+    If this property is unspecified, value for lens.driver.jdbc.db.uri will be used.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.db.user</name>
+    <name>lens.driver.jdbc.estimate.db.user</name>
     <value></value>
     <description>The database user on whose behalf the connection is being made, for estimate queries.
-    If this property is unspecified, value for lens.driver.adla.db.user would be used.
+    If this property is unspecified, value for lens.driver.jdbc.db.user would be used.
       Override this property to tune estimate connection pool</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.db.password</name>
+    <name>lens.driver.jdbc.estimate.db.password</name>
     <value></value>
     <description>The database user's password, for estimate queries. If this property is unspecified,
-      value for lens.driver.adla.db.password would be used.
+      value for lens.driver.jdbc.db.password would be used.
       Override this property to tune estimate connection pool</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.pool.max.size</name>
+    <name>lens.driver.jdbc.estimate.pool.max.size</name>
     <value></value>
     <description>Maximum number of concurrent connections allowed in pool, for estimate queries.
-    If this property is unspecified, value for lens.driver.adla.pool.max.size would be used.
+    If this property is unspecified, value for lens.driver.jdbc.pool.max.size would be used.
       Override this property to tune estimate connection pool</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.pool.idle.time</name>
+    <name>lens.driver.jdbc.estimate.pool.idle.time</name>
     <value></value>
     <description>Maximum idle time in sec before a connection is closed, for estimate queries.
-    If this property is not specified, value for lens.driver.adla.pool.idle.time would be used.
+    If this property is not specified, value for lens.driver.jdbc.pool.idle.time would be used.
       Override this property to tune estimate connection pool.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.pool.max.statements</name>
+    <name>lens.driver.jdbc.estimate.pool.max.statements</name>
     <value></value>
     <description>Maximum number of prepared statements to cache per connection, for estimate queries.
-    If this property is not specified, value for lens.driver.adla.pool.max.statements would be used.</description>
+    If this property is not specified, value for lens.driver.jdbc.pool.max.statements would be used.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.estimate.get.connection.timeout</name>
+    <name>lens.driver.jdbc.estimate.get.connection.timeout</name>
     <value></value>
     <description>Response timeout in milliseconds of any JDBC call invoking data transmission over a connection socket
-    , for estimate queries. If this property is not specified, value for lens.driver.adla.get.connection.timeout
+    , for estimate queries. If this property is not specified, value for lens.driver.jdbc.get.connection.timeout
     would be used. Override this property to tune estimate connection pool.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.explain.keyword</name>
+    <name>lens.driver.jdbc.explain.keyword</name>
     <value>Explain</value>
     <description>Explain keyword used to get the query plan of underlying database</description>
   </property>
@@ -217,7 +217,7 @@
   </property>
 
   <property>
-    <name>lens.driver.adla.enable.resultset.streaming.retrieval</name>
+    <name>lens.driver.jdbc.enable.resultset.streaming.retrieval</name>
     <value>false</value>
     <description>Flag to enable row by row retrieval of result set from the database server. This is used to enable
       streaming result sets for MySQL. This is set to false by default.
@@ -225,19 +225,19 @@
   </property>
 
   <property>
-    <name>lens.driver.adla.fetch.size</name>
+    <name>lens.driver.jdbc.fetch.size</name>
     <value>1000</value>
     <description>Fetch size for JDBC result set</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.validate.through.prepare</name>
+    <name>lens.driver.jdbc.validate.through.prepare</name>
     <value>true</value>
     <description>Flag to enable query syntactic and semantic validation using prepared statement.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.query.launching.constraint.factories</name>
+    <name>lens.driver.jdbc.query.launching.constraint.factories</name>
     <value>org.apache.lens.server.api.query.constraint.MaxConcurrentDriverQueriesConstraintFactory</value>
     <description>Factories used to instantiate constraints enforced on queries by driver. A query will be launched
       only if all constraints pass. Every Factory should be an implementation of
@@ -246,7 +246,7 @@
   </property>
 
   <property>
-    <name>lens.driver.adla.waiting.queries.selection.policy.factories</name>
+    <name>lens.driver.jdbc.waiting.queries.selection.policy.factories</name>
     <value>org.apache.lens.server.api.query.collect.DriverSpecificWaitingQueriesSelectionPolicyFactory</value>
     <description>Factories used to instantiate driver specific waiting queries selection policies. Every factory should
       be an implementation of org.apache.lens.server.api.common.ConfigBasedObjectCreationFactory and create an
@@ -257,20 +257,20 @@
     <name>driver.max.concurrent.launched.queries</name>
     <value>15</value>
     <description>Maximum queries which can be launched simultaneously on this driver. This should be equal to
-      lens.driver.adla.pool.max.size. This configuration value is only useful when MaxConcurrentDriverQueriesConstraint
+      lens.driver.jdbc.pool.max.size. This configuration value is only useful when MaxConcurrentDriverQueriesConstraint
       is enabled by using org.apache.lens.server.api.query.constraint.MaxConcurrentDriverQueriesConstraintFactory as
-      one of the factories in lens.driver.adla.query.constraint.factories property.</description>
+      one of the factories in lens.driver.jdbc.query.constraint.factories property.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.statement.cancel.supported</name>
+    <name>lens.driver.jdbc.statement.cancel.supported</name>
     <value>true</value>
     <description>Flag to indicate Whether cancel on JDBC statement is supported. If not supported,
       framework wont call cancel on JDBC statement.</description>
   </property>
 
   <property>
-    <name>lens.driver.adla.cost.calculator.class</name>
+    <name>lens.driver.jdbc.cost.calculator.class</name>
     <value>org.apache.lens.cube.query.cost.StaticCostCalculator</value>
     <description>Cost calculator class. By default calculating cost through static values </description>
   </property>

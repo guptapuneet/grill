@@ -64,18 +64,18 @@ public class TestSummaryAzureQueryRewriter {
       + " adv_origin_country_id long, agency_revenue double, billable_cpm_beacons double, billed_cpc_clicks"
       + " double, billed_installs double, billed_spend double, campaign_inc_id long, completed_views"
       + " double, cpc_impressions double, cpm_clicks double, cpm_impressions double, creative_charges"
-      + " double, data_enrichment_cost double, event_time string, first_quartiles double, fraud_clicks"
+      + " double, data_enrichment_cost double, event_time DateTime, first_quartiles double, fraud_clicks"
       + " double, fund_source_id long, inmobi_investment double, io_discount double, is_vta_enabled "
       + "string, matched_conversions double, media_plays double, nofund_revenue double, "
       + "non_billable_cpc_clicks double, non_billable_impressions double, other_valid_clicks double, "
-      + "pricing_model_id long, process_time string, pub_pay_event_type string, request_time string, "
+      + "pricing_model_id long, process_time DateTime, pub_pay_event_type string, request_time DateTime, "
       + "resolved_slot_size string, second_quartiles double, served_impressions double, terminated_clicks"
       + " double, third_quartiles double, total_burn double, total_clicks double, total_installs double,"
       + " unbilled_installs double, volume_discount double, vqs_count double, vqs_sum double, "
       + "withhold_taxes double FROM \"/pipeSeparated/summary1/2018-01-14-{*}/part.csv\" USING "
       + "Extractors.Text(delimiter: '|', skipFirstNRows: 1);@filter = SELECT adv_account_inc_id AS "
       + "[adv_account_inc_id], campaign_inc_id AS [campaign_inc_id], total_burn AS [burn], total_clicks"
-      + " AS [total_clicks] FROM @input  WHERE ((event_time) IN (\"2018-01-01 00:00:00\") AND "
+      + " AS [total_clicks] FROM @input  WHERE ((event_time) IN (DateTime.Parse(\"2018-01-01 00:00:00\")) AND "
       + "([adv_account_inc_id]) IN (208261 , 180154));@groupby = SELECT [adv_account_inc_id], "
       + "[campaign_inc_id], SUM([burn])  AS [burn], SUM([total_clicks])  AS [total_clicks] FROM @filter"
       + "  GROUP BY [adv_account_inc_id], [campaign_inc_id] HAVING ((([total_clicks]) > 0) AND (([burn])"
@@ -84,5 +84,13 @@ public class TestSummaryAzureQueryRewriter {
       + " \"/clusters/output/<<jobid>>.csv\" USING Outputters.Csv();",
       summaryAzureQueryRewriter.rewrite(context, driver)
     );
+  }
+
+  @Test
+  public void regexParse() {
+    SummaryAzureQueryRewriter summaryAzureQueryRewriter = new SummaryAzureQueryRewriter();
+    assertEquals(summaryAzureQueryRewriter
+      .replaceUSQLDate("BETWEEN \"2018-01-01 13:00:00\" AND \"2018-01-01 14:00:00\" ldjhf"),
+      "BETWEEN DateTime.Parse(\"2018-01-01 13:00:00\") AND DateTime.Parse(\"2018-01-01 14:00:00\") ldjhf");
   }
 }

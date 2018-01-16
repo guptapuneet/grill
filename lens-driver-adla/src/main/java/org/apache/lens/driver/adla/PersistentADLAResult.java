@@ -19,10 +19,16 @@
 package org.apache.lens.driver.adla;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.lens.server.api.driver.LensResultSetMetadata;
 import org.apache.lens.server.api.driver.PersistentResultSet;
 import org.apache.lens.server.api.error.LensException;
+
+import org.apache.hive.service.cli.ColumnDescriptor;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 
 public class PersistentADLAResult extends PersistentResultSet {
@@ -45,11 +51,20 @@ public class PersistentADLAResult extends PersistentResultSet {
 
   @Override
   public LensResultSetMetadata getMetadata() throws LensException {
-    return null;
+    return new ADLAResultSetMetadata();
   }
 
   @Override
   public String getOutputPath() throws LensException {
     return path;
+  }
+
+
+  private static class ADLAResultSetMetadata extends LensResultSetMetadata {
+    @JsonIgnore
+    @Override
+    public List<ColumnDescriptor> getColumns() {
+      return new ArrayList<>();
+    }
   }
 }

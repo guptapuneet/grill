@@ -19,13 +19,14 @@
   under the License.
 
 -->
-<x_base_cube xmlns="uri:lens:cube:0.1" description="brand demand cube" name="brand">
+<x_base_cube xmlns="uri:lens:cube:0.1" description="demand cube" name="demand">
   <properties>
     <property name="cube.timedim.partition.process_time" value="pt"/>
     <property name="cube.timedim.partition.event_time" value="et"/>
-    <property name="cube.brand.timed.dimensions.list" value="process_time,request_time,event_time"/>
+    <property name="cube.demand.timed.dimensions.list" value="process_time,request_time,event_time"/>
     <property name="cube.timedim.partition.request_time" value="it"/>
-    <property name="cube.table.brand.weight" value="1000.0"/>
+      <property name="cube.timedim.partition.event_time" value="et"/>
+    <property name="cube.table.demand.weight" value="1000.0"/>
  </properties>
 <measures>
 	<measure _type="BIGINT" default_aggr="sum" display_string="total_clicks" format_string="format_number(%s,&quot;##################.###&quot;)" name="total_clicks" start_time="2011-04-01T00:00:00.000Z" />
