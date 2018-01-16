@@ -179,6 +179,7 @@ public class SummaryAzureQueryRewriter extends ColumnarSQLRewriter {
       .replaceAll("sum", "SUM").replaceAll(" and ", " AND ")
       .replaceAll(" or ", " OR ").replaceAll(" not ", " NOT ")
       .replaceAll(" in ", " IN ").replaceAll(" between ", " BETWEEN ")
+      .replaceAll(" = ", " == ")
       .replaceAll("'", "\"");
     for (String k : aliasMap.keySet()) {
       str = str.replaceAll(cubeName + "." + k, aliasMap.get(k));
