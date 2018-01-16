@@ -61,11 +61,42 @@ public class JobUtils {
     + "    \"script\": \"<<script>>\"  \n"
     + "  }  \n"
     + "}  ";
+  private static String querySkeleton1 = "{  \n"
+      + "  \"jobId\": \"<<jobid>>\",  \n"
+      + "  \"name\": \"<<jobid>>\",  \n"
+      + "  \"type\": \"USql\",  \n"
+      + "  \"degreeOfParallelism\": <<p>>,  \n"
+      + "  \"priority\": 1000,  \n"
+      + "  \"properties\": {  \n"
+      + "    \"type\": \"USql\",  \n"
+      + "    \"script\": \"<<script>>\"  \n"
+      + "  }  \n"
+      + "}  ";
 
   public static void submitJob(String jobId, String payload, String bearerToken) throws LensException {
     log.info("Submitting job {}  with payload {} and bearerToken {}", jobId, payload, bearerToken);
     payload = payload.replace("\"", "\\\"");
     String finalquery = querySkeleton.replace("<<script>>", payload);
+    finalquery = finalquery.replace("<<jobid>>", jobId);
+    String requestUrl = baseUrl + "jobs/" + jobId + "?api-version=2016-11-01";
+    WebTarget webResource = client.target(requestUrl);
+    Invocation.Builder x = webResource.request(MediaType.APPLICATION_JSON);
+    x = x.header("Authorization", bearerToken);
+    x = x.accept("application/json");
+    Response response = x.put(Entity.entity(finalquery, MediaType.APPLICATION_JSON));
+    if (response.getStatus() != 200) {
+      log.error("Filed to submit JOB on ADLA. Job ID {}", jobId);
+      throw new LensException("Filed to submit JOB on ADLA. Job ID  " +jobId);
+    }
+    String output = response.readEntity(String.class);
+    System.out.println(output);
+    System.out.println(finalquery);
+  }
+  public static void submitJob(String jobId, String payload, String bearerToken, int parallelism) throws LensException {
+    log.info("Submitting job {}  with payload {} and bearerToken {}", jobId, payload, bearerToken);
+    payload = payload.replace("\"", "\\\"");
+    String finalquery = querySkeleton1.replace("<<script>>", payload);
+    finalquery = finalquery.replace("<<p>>",Integer.toString(parallelism));
     finalquery = finalquery.replace("<<jobid>>", jobId);
     String requestUrl = baseUrl + "jobs/" + jobId + "?api-version=2016-11-01";
     WebTarget webResource = client.target(requestUrl);
@@ -155,7 +186,9 @@ public class JobUtils {
     return response.readEntity(InputStream.class);
   }
 
-
+  public static void main(String[] args) throws LensException {
+    submitJob("1","adsad","wadaw",10);
+  }
 
 
 }
